@@ -57,6 +57,12 @@ function buildTransportForUser(u: UserSmtp | null): Transport {
       pass: decryptSecret(u.smtpPassEncrypted!),
     });
   }
+  if (env.NODE_ENV === "production") {
+    throw new Error(
+      "No SMTP configured for this user. Configure your mailbox in Settings → Mail server before sending.",
+    );
+  }
+  // Dev/test: fall back to env transport so mailpit and friends keep working.
   return getTransport();
 }
 
@@ -103,7 +109,17 @@ export async function sendCampaign(campaignId: string): Promise<DispatchResult> 
   const owner = await db.query.users.findFirst({
     where: eq(schema.users.id, c.createdById),
   });
-  const transport = buildTransportForUser(owner ?? null);
+  let transport: Transport;
+  try {
+    transport = buildTransportForUser(owner ?? null);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await db
+      .update(schema.campaigns)
+      .set({ status: "FAILED", completedAt: new Date() })
+      .where(eq(schema.campaigns.id, campaignId));
+    throw new Error(message);
+  }
   const fromAddress = buildFromForUser(c.fromName, owner ?? null);
 
   let sent = 0;
