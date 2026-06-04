@@ -10,7 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:migrate": "psql \"$DATABASE_URL\" -f drizzle/$(ls drizzle | grep -E '^[0-9]+_.+\\.sql$' | tail -1)",
+    "db:migrate": "bun run scripts/migrate.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
