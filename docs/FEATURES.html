@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AGEL Outreach — Feature Catalogue</title>
+  <style>
+    :root {
+      --maroon-700: #631d2a;
+      --maroon-800: #571a26;
+      --blush-50: #fbf3f5;
+      --blush-100: #efccd3;
+      --blush-200: #ecc2ca;
+      --ink-25: #fafafa;
+      --ink-50: #f5f5f5;
+      --ink-100: #e6e6e6;
+      --ink-400: #999999;
+      --ink-600: #5a5a5a;
+      --ink-700: #333333;
+      --ink-800: #191919;
+      --success-700: #15633f;
+      --success-50: #e7f5ed;
+      --warning-700: #8a5a00;
+      --warning-50: #fdf3df;
+      --danger-700: #b42318;
+      --info-700: #1e4ec7;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--ink-25);
+      color: var(--ink-800);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 56px 32px 96px;
+    }
+    .hero {
+      position: relative;
+      padding: 36px 40px;
+      margin-bottom: 36px;
+      background: linear-gradient(135deg, var(--maroon-800) 0%, var(--maroon-700) 100%);
+      color: var(--blush-50);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(236, 194, 202, 0.12) 1px, transparent 1px);
+      background-size: 14px 14px;
+      mask-image: radial-gradient(ellipse at top right, black 30%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse at top right, black 30%, transparent 75%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      position: relative;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blush-200);
+      margin-bottom: 8px;
+    }
+    .hero h1 {
+      position: relative;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 38px;
+      font-weight: 400;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      margin: 0 0 12px;
+    }
+    .hero p {
+      position: relative;
+      margin: 0;
+      font-size: 14.5px;
+      color: rgba(236, 194, 202, 0.85);
+      max-width: 580px;
+    }
+    .meta {
+      position: relative;
+      margin-top: 22px;
+      font-size: 12px;
+      color: var(--blush-200);
+      font-family: ui-monospace, monospace;
+      letter-spacing: 0.04em;
+    }
+    h2 {
+      font-family: 'Georgia', serif;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--ink-800);
+      margin: 56px 0 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--ink-100);
+    }
+    h2 .section-no {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--blush-50);
+      color: var(--maroon-700);
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 28px;
+      margin-right: 10px;
+      vertical-align: 3px;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink-800);
+      margin: 24px 0 6px;
+    }
+    p { margin: 0 0 14px; color: var(--ink-700); }
+    p.lead { color: var(--ink-600); font-size: 14px; }
+    .effort {
+      display: inline-block;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--blush-50);
+      color: var(--maroon-700);
+      margin-right: 6px;
+    }
+    .status {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-left: 8px;
+      vertical-align: 2px;
+    }
+    .status-shipped { background: var(--success-50); color: var(--success-700); }
+    .status-progress { background: var(--warning-50); color: var(--warning-700); }
+    .status-backlog { background: var(--ink-50); color: var(--ink-600); }
+    .status-idea { background: var(--blush-50); color: var(--maroon-700); }
+    ul { padding-left: 22px; margin: 0 0 16px; color: var(--ink-700); }
+    li { margin-bottom: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 22px;
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--ink-100);
+      font-size: 13.5px;
+    }
+    th, td {
+      padding: 11px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--ink-50);
+    }
+    th {
+      background: var(--ink-25);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--ink-600);
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    td strong { color: var(--ink-800); font-weight: 600; }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      padding: 18px;
+      background: #ffffff;
+      border: 1px solid var(--ink-100);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .legend-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .feature {
+      padding: 18px 20px;
+      background: #ffffff;
+      border: 1px solid var(--ink-100);
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .feature h3 { margin-top: 0; }
+    .footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--ink-100);
+      font-size: 12.5px;
+      color: var(--ink-400);
+      text-align: center;
+    }
+    @media print {
+      body { background: white; }
+      .wrap { max-width: 100%; padding: 24px; }
+      .hero { background: var(--maroon-700) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .feature { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Internal — AGEL Group</div>
+    <h1>Outreach — Feature Catalogue</h1>
+    <p>A living catalogue of every feature that exists, is being built, or could be built to help the AGEL team run outreach campaigns more effectively. Use this as a roadmap reference, planning document, and shared vocabulary.</p>
+    <div class="meta">Last updated · 2026-06-04</div>
+  </header>
+
+  <h2>Status & effort legend</h2>
+  <div class="legend">
+    <div class="legend-row"><span class="legend-dot status-shipped">✓</span><span><strong>Shipped</strong> — live today</span></div>
+    <div class="legend-row"><span class="legend-dot status-progress">⌛</span><span><strong>In progress</strong></span></div>
+    <div class="legend-row"><span class="legend-dot status-backlog">○</span><span><strong>Backlog</strong> — not started</span></div>
+    <div class="legend-row"><span class="legend-dot status-idea">💡</span><span><strong>Idea</strong> — worth considering</span></div>
+  </div>
+  <p class="lead">Effort: <span class="effort">S</span> &lt; 2 hrs · <span class="effort">M</span> ½ day · <span class="effort">L</span> 1–3 days · <span class="effort">XL</span> &gt; 3 days.</p>
+
+  <!-- ====== 1. Shipped ====== -->
+  <h2><span class="section-no">1</span> Already shipped <span class="status status-shipped">Live</span></h2>
+  <p class="lead">These are in production today.</p>
+  <table>
+    <thead><tr><th>Feature</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Email + password authentication</strong></td><td>NextAuth-based sign-in with scrypt password hashing. JWT sessions.</td></tr>
+      <tr><td><strong>Per-user SMTP</strong></td><td>Each user enters their own SMTP host/port/user/password. Sends go from their own mailbox.</td></tr>
+      <tr><td><strong>Encrypted credential storage</strong></td><td>SMTP passwords stored with AES-256-GCM. Never readable in DB or logs.</td></tr>
+      <tr><td><strong>"Test connection" button</strong></td><td>Verifies SMTP credentials with nodemailer's verify() before saving.</td></tr>
+      <tr><td><strong>Required-SMTP guardrail</strong></td><td>In production, sending fails with a friendly "Configure your mailbox" error instead of using shared fallback credentials.</td></tr>
+      <tr><td><strong>Mailbox-setup banner</strong></td><td>Friendly banner on every page until SMTP is configured.</td></tr>
+      <tr><td><strong>MJML template editor</strong></td><td>Monaco-based editor with live preview, variable extraction, server-side MJML compile.</td></tr>
+      <tr><td><strong>Campaigns flow</strong></td><td>Template → contacts → preview → send, with validation at each step.</td></tr>
+      <tr><td><strong>Contacts upload</strong></td><td>Accepts .json, .csv, .xlsx. Auto-detects email column.</td></tr>
+      <tr><td><strong>Sample file downloads</strong></td><td>One-click starter file in any of the three formats.</td></tr>
+      <tr><td><strong>Saved contact lists</strong></td><td>Save an audience once, reuse across campaigns.</td></tr>
+      <tr><td><strong>Test send to self</strong></td><td>Render the campaign with a real row and send only to your own address.</td></tr>
+      <tr><td><strong>Scheduled sends</strong></td><td>Pick a future datetime; the cron dispatcher picks it up when due.</td></tr>
+      <tr><td><strong>Per-recipient status</strong></td><td>Real-time table of QUEUED / SENT / DELIVERED / FAILED / OPENED with error messages.</td></tr>
+      <tr><td><strong>Confirmation modal</strong></td><td>Type the recipient count to confirm before send — prevents accidental large sends.</td></tr>
+      <tr><td><strong>Profile management</strong></td><td>Name, default from-name, default reply-to, signature, password change.</td></tr>
+      <tr><td><strong>Role-based access</strong></td><td>USER and SUPERADMIN. Superadmins see the Users page.</td></tr>
+      <tr><td><strong>API tokens</strong></td><td>Hashed token-based REST API for programmatic campaign creation.</td></tr>
+      <tr><td><strong>CI/CD pipeline</strong></td><td>GitHub Actions → SSH push to Clever Cloud on every main merge. Migrate + seed workflows are manual.</td></tr>
+      <tr><td><strong>AGEL branded UI</strong></td><td>Brand colors, serif/sans/mono fonts, maroon/blush palette, custom favicon.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ====== 2. Must-haves ====== -->
+  <h2><span class="section-no">2</span> Must-haves (legal &amp; safety) <span class="status status-backlog">Backlog</span></h2>
+  <p class="lead">Build these before scaling outreach volume.</p>
+
+  <div class="feature">
+    <h3><span class="effort">S–M</span> Unsubscribe link &amp; opt-out page</h3>
+    <p>Legal requirement under GDPR (EU), CAN-SPAM (US), CASL (Canada). Add an <code>{{unsubscribe_url}}</code> auto-variable, a public <code>/u/[token]</code> page (no auth) that records the opt-out, a global suppression list, and a refusal at send time.</p>
+  </div>
+
+  <div class="feature">
+    <h3><span class="effort">S</span> Suppression list (do-not-contact)</h3>
+    <p>Global blocklist regardless of which list a contact is on. Use cases: bounces, complaints, unsubscribes, manual "do not contact" flags.</p>
+  </div>
+
+  <div class="feature">
+    <h3><span class="effort">S</span> Daily send-rate limit per user</h3>
+    <p>Hostinger shared mailboxes cap at ~300/day. Exceeding can suspend the whole account. Configurable per-user cap, midnight reset in the user's timezone, friendly refusal with remaining-quota message.</p>
+  </div>
+
+  <div class="feature">
+    <h3><span class="effort">M</span> GDPR data-subject request handler</h3>
+    <p>When a contact asks "what data do you have on me?", generate a JSON export of every row + every campaign that sent to that address.</p>
+  </div>
+
+  <div class="feature">
+    <h3><span class="effort">S</span> Privacy policy &amp; footer link</h3>
+    <p>"Privacy" link in the email footer pointing to your policy hosted on agelpartners.com.</p>
+  </div>
+
+  <!-- ====== 3. Productivity ====== -->
+  <h2><span class="section-no">3</span> Productivity wins <span class="status status-backlog">Backlog</span></h2>
+  <p class="lead">Pay back daily for the team.</p>
+
+  <div class="feature"><h3><span class="effort">S</span> Drafts</h3><p>The DRAFT status already exists. Expose it: save a half-finished campaign and resume later.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Duplicate a campaign</h3><p>"Duplicate" button that copies template/subject/sender — but starts with empty contacts.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> List editing</h3><p>Rename, edit description, add/remove individual members on an existing list.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Shared lists across team</h3><p>Mark a list as "shared" so colleagues can use it in their own campaigns.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Bulk actions</h3><p>Multi-select campaigns to archive, delete, or duplicate at once.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Search &amp; filter</h3><p>Free-text search by name; filter by status, date range, sender.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Keyboard shortcuts</h3><p>⌘K command palette, ⌘N new campaign, J/K to navigate lists.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Onboarding tour</h3><p>First-login walkthrough: SMTP setup → first template → first contacts → first test send.</p></div>
+
+  <!-- ====== 4. Engagement & analytics ====== -->
+  <h2><span class="section-no">4</span> Engagement &amp; analytics <span class="status status-backlog">Backlog</span></h2>
+  <p class="lead">Turn outreach from a black box into a measurable funnel.</p>
+
+  <div class="feature"><h3><span class="effort">M</span> Per-campaign analytics dashboard</h3><p>Open rate, delivery rate, fail rate, reply rate. Timeline of opens over the first 72 hours. Per-recipient breakdown.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Click tracking</h3><p>Wrap outbound links in tracking redirects, log clicks per recipient.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Open tracking pixel</h3><p>1×1 transparent GIF served per recipient. Many corporate clients block it — useful but not authoritative.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> Best send-time recommendations</h3><p>After enough data, suggest send times based on when this audience usually opens.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> A/B testing</h3><p>Send variant A to 50%, variant B to 50%. Auto-pick the winner by open rate after N hours, send to the rest.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Campaign comparison</h3><p>Side-by-side open/click/reply metrics across two campaigns.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> CSV export</h3><p>Per-campaign export of recipient statuses + merge data + timestamps.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Live dashboard</h3><p>Aggregate stats this week / month: campaigns sent, recipients reached, average open rate, top templates.</p></div>
+
+  <!-- ====== 5. Reply handling ====== -->
+  <h2><span class="section-no">5</span> Reply handling <span class="status status-backlog">Backlog</span></h2>
+  <p class="lead">The single biggest UX win for an outbound team.</p>
+
+  <div class="feature"><h3><span class="effort">L</span> IMAP reply tracking</h3><p>Poll each user's IMAP inbox; match incoming messages to outbound campaigns by Message-ID / In-Reply-To. Update recipient status to REPLIED.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> In-app inbox view</h3><p>Per-campaign timeline of replies — read, archive, mark as won/lost.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> Auto-categorize replies</h3><p>Classify as interested / not-interested / out-of-office / auto-reply / human.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Auto-pause on reply</h3><p>If a contact replies to step 1 of a sequence, don't send step 2.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Reply templates</h3><p>Small library of quick-reply snippets per user.</p></div>
+
+  <!-- ====== 6. Deliverability ====== -->
+  <h2><span class="section-no">6</span> Deliverability &amp; quality <span class="status status-backlog">Backlog</span></h2>
+  <p class="lead">Keep emails out of spam folders.</p>
+
+  <div class="feature"><h3><span class="effort">M</span> Pre-send spam-score check</h3><p>Analyze subject + body for spam triggers (ALL CAPS, excessive !, "free", "click here"). Show a 0–10 score before send.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Template linting</h3><p>Warn if MJML references variables not in contacts, has broken closures, or missing alt-text on images.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Domain authentication wizard</h3><p>Walk users through SPF, DKIM, DMARC setup. Verify by DNS lookup.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> Deliverability score per user</h3><p>Track bounce rate, complaint rate, open rate. Show 0–100 score; warn if degrading.</p></div>
+  <div class="feature"><h3><span class="effort">XL</span> Inbox preview (Litmus-style)</h3><p>Render the email in Gmail web, Apple Mail, Outlook desktop, mobile clients. Requires third-party API ($).</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Image alt-text validation</h3><p>Refuse to send if &lt;mj-image&gt; is missing alt. Hurts accessibility and deliverability.</p></div>
+
+  <!-- ====== 7. Sequences ====== -->
+  <h2><span class="section-no">7</span> Sequences &amp; automation <span class="status status-backlog">Backlog</span></h2>
+
+  <div class="feature"><h3><span class="effort">L</span> Multi-step sequences</h3><p>"Send step 1; if no reply in 5 days, send step 2; if still no reply, send step 3."</p></div>
+  <div class="feature"><h3><span class="effort">L</span> Conditional logic</h3><p>"If opened step 1 but didn't click, send X; if didn't open, send Y."</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Drip campaigns</h3><p>Recurring sends to a list on a schedule.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Time-zone aware sending</h3><p>"Send at 9 AM local time" per recipient, computed from a timezone column.</p></div>
+
+  <!-- ====== 8. Team ====== -->
+  <h2><span class="section-no">8</span> Team &amp; collaboration <span class="status status-backlog">Backlog</span></h2>
+
+  <div class="feature"><h3><span class="effort">S</span> Audit log</h3><p>SUPERADMINs see who sent what, when, to whom, with the result.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Shared template library</h3><p>Templates tagged "team" are visible to everyone, not just the creator.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> Approval workflow</h3><p>Require a SUPERADMIN to approve any campaign over N recipients before send.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Comments on templates / campaigns</h3><p>In-line comments so colleagues can suggest edits before send.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Mentions &amp; notifications</h3><p>@yassine notifies the user in-app + email.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Activity feed</h3><p>"Marie sent campaign X to 230 recipients", "Ahmed created list Y".</p></div>
+
+  <!-- ====== 9. Contact mgmt ====== -->
+  <h2><span class="section-no">9</span> Contact management <span class="status status-backlog">Backlog</span></h2>
+
+  <div class="feature"><h3><span class="effort">L</span> Unified contact profile</h3><p>Click an email address anywhere → see every list, every campaign, every reply, all merge data. A mini CRM.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Custom fields</h3><p>Beyond name/organization, let users define their own fields per list.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Tags</h3><p>Tag contacts (vip, partner, cold-lead) and filter lists by tag.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Contact deduplication</h3><p>Cross-list dedup with a "which lists" indicator.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> Import from Google / Outlook</h3><p>OAuth into Google Contacts or Microsoft Graph and pull contacts.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Auto-bounce handling</h3><p>Parse bounce notifications from IMAP; auto-add hard-bounced addresses to the suppression list.</p></div>
+
+  <!-- ====== 10. Templates ====== -->
+  <h2><span class="section-no">10</span> Templates &amp; content <span class="status status-backlog">Backlog</span></h2>
+
+  <div class="feature"><h3><span class="effort">M</span> Version history</h3><p>Each save creates a version; rollback to any prior version.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Variables manager</h3><p>Panel showing every variable used by the current template with sample values for preview.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Image hosting / asset library</h3><p>Upload images to object storage (Clever Cellar / S3), paste URLs into MJML. Optional toolbar button for one-click insert.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Multi-language variants</h3><p>A template can have FR, EN, AR variants. Send the right one based on a contact's locale.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Template categories</h3><p>Group templates: "Cold outreach", "Welcome series", "Newsletters".</p></div>
+  <div class="feature"><h3><span class="effort">M</span> AI-assisted writing</h3><p>"Rewrite this for a warmer tone" / "Make it shorter" via Claude API. Saves drafts as suggestions, never sends without confirmation.</p></div>
+
+  <!-- ====== 11. Integrations ====== -->
+  <h2><span class="section-no">11</span> Integrations <span class="status status-backlog">Backlog</span></h2>
+
+  <div class="feature"><h3><span class="effort">M</span> Webhooks</h3><p>Fire HTTP POSTs on events: campaign.sent, recipient.opened, recipient.replied.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Slack notifications</h3><p>Post in a Slack channel when a campaign finishes.</p></div>
+  <div class="feature"><h3><span class="effort">M</span> Zapier / Make / n8n</h3><p>Public API + auth, plus trigger endpoints so external tools can connect.</p></div>
+  <div class="feature"><h3><span class="effort">S</span> Calendar booking links</h3><p>Auto-inject Calendly / Cal.com booking links per user as a merge var.</p></div>
+  <div class="feature"><h3><span class="effort">L</span> CRM sync</h3><p>Two-way sync of contacts + campaign activity with HubSpot, Pipedrive.</p></div>
+
+  <!-- ====== 12. Ideas ====== -->
+  <h2><span class="section-no">12</span> Future ideas <span class="status status-idea">Idea</span></h2>
+  <ul>
+    <li><strong>Per-recipient AI personalization</strong> — generate 3 unique opening lines per contact from LinkedIn / company data.</li>
+    <li><strong>Inbox warm-up</strong> — slowly ramp send volume on a new mailbox to build sender reputation.</li>
+    <li><strong>Native mobile app</strong> — view replies and stats from a phone.</li>
+    <li><strong>Voice notes in emails</strong> — record a short audio clip, hosted, included as a link with preview thumbnail.</li>
+    <li><strong>Video personalization</strong> — auto-generate a Loom thumbnail with recipient's name overlaid.</li>
+    <li><strong>Custom tracking domains</strong> — links.agelpartners.com/c/xxx instead of generic URLs.</li>
+    <li><strong>Public campaign report links</strong> — share a read-only stats URL with non-account stakeholders.</li>
+    <li><strong>Real-time collaboration</strong> — multiple people editing the same template at once.</li>
+    <li><strong>AI subject-line suggester</strong> — generate 5 variants, predict open rate for each.</li>
+  </ul>
+
+  <h2><span class="section-no">13</span> How to read this catalogue</h2>
+  <p>For planning sprints: pick from §2 (legal) first, then §3 (productivity) to compound returns daily. §5 (reply handling) is the highest-leverage feature for outbound sales — schedule it when you have a 1–3 day window.</p>
+  <p>For prioritization arguments: effort tags + impact category give a quick way to argue tradeoffs. "An A/B test (L) vs a daily-send-limit (S)" — the S wins almost every time.</p>
+  <p>For onboarding: skim §1 to understand what's already built before adding to it.</p>
+  <p>Open a ClickUp ticket in the Outreach list when you start work on any feature here. Cross-reference the section + feature name in the ticket description.</p>
+
+  <div class="footer">
+    © 2026 Groupe AGEL · Internal tooling · Last updated 2026-06-04
+  </div>
+
+</div>
+</body>
+</html>
