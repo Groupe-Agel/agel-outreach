@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Campaigns — mockup</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --panel: #161a22;
+        --panel-2: #1d2230;
+        --border: #2a3142;
+        --text: #e6eaf2;
+        --muted: #9aa3b2;
+        --accent: #6c8cff;
+        --ok: #4ade80;
+        --warn: #fbbf24;
+        --err: #f87171;
+        --row: #11151c;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+      .nav { background: var(--panel); border-right: 1px solid var(--border); padding: 20px 16px; }
+      .nav h1 { font-size: 14px; letter-spacing: .04em; color: var(--muted); margin: 0 0 16px; text-transform: uppercase; }
+      .nav a { display: block; padding: 8px 10px; border-radius: 6px; color: var(--text); text-decoration: none; font-size: 14px; margin-bottom: 2px; }
+      .nav a.active { background: var(--panel-2); color: var(--accent); }
+      .main { padding: 24px 28px; }
+      .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+      h2 { margin: 0; font-size: 20px; }
+      .btn { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; font-size: 14px; cursor: pointer; }
+      .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+      th { color: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+      tr td { background: var(--row); }
+      .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; }
+      .pill.ok { background: rgba(74,222,128,.12); color: var(--ok); }
+      .pill.run { background: rgba(108,140,255,.15); color: var(--accent); }
+      .pill.sched { background: rgba(251,191,36,.15); color: var(--warn); }
+      .pill.fail { background: rgba(248,113,113,.15); color: var(--err); }
+      .grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+      .stat { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+      .stat .k { color: var(--muted); font-size: 12px; }
+      .stat .v { font-size: 22px; margin-top: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="nav">
+        <h1>agel-outreach</h1>
+        <a href="#" class="active">Campaigns</a>
+        <a href="#">Templates</a>
+        <a href="#">Settings</a>
+      </aside>
+      <main class="main">
+        <div class="row">
+          <h2>Campaigns</h2>
+          <button class="btn">New campaign</button>
+        </div>
+
+        <div class="grid">
+          <div class="stat"><div class="k">Sent (30d)</div><div class="v">12,480</div></div>
+          <div class="stat"><div class="k">Delivered</div><div class="v">12,212</div></div>
+          <div class="stat"><div class="k">Opened</div><div class="v">5,304</div></div>
+          <div class="stat"><div class="k">Bounced</div><div class="v">268</div></div>
+        </div>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Campaign</th>
+                <th>Template</th>
+                <th>Recipients</th>
+                <th>Status</th>
+                <th>When</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Partner outreach — May wave 2</td>
+                <td>partner-pitch-v4</td>
+                <td>842</td>
+                <td><span class="pill ok">Delivered</span></td>
+                <td>2 hours ago</td>
+              </tr>
+              <tr>
+                <td>Recruiting — engineering</td>
+                <td>recruit-eng-v1</td>
+                <td>120</td>
+                <td><span class="pill run">Running</span></td>
+                <td>now</td>
+              </tr>
+              <tr>
+                <td>Newsletter — Q2</td>
+                <td>newsletter-q2</td>
+                <td>3,401</td>
+                <td><span class="pill sched">Scheduled</span></td>
+                <td>tomorrow 09:00</td>
+              </tr>
+              <tr>
+                <td>Event invite — Casablanca</td>
+                <td>event-invite-mar</td>
+                <td>602</td>
+                <td><span class="pill fail">Failed</span></td>
+                <td>yesterday</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<mjml>
+  <mj-head>
+    <mj-title>Programme Early Access — Clever Cloud Morocco</mj-title>
+    <mj-preview>Votre organisation a été sélectionnée pour participer au programme Early Access de Clever Cloud Morocco.</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text color="#333333" line-height="1.65" font-size="15px" />
+      <mj-section padding="0" />
+    </mj-attributes>
+    <mj-style>
+      a { color: #631d2a; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#efccd3" width="600px">
+
+    <mj-section background-color="#631d2a" padding="22px 32px">
+      <mj-column>
+        <mj-text color="#efccd3" font-size="18px" font-weight="600" letter-spacing="0.3px">
+          AGEL &times; Clever Cloud Morocco
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding="36px 32px 8px 32px">
+      <mj-column>
+        <mj-text font-size="17px" font-weight="600" color="#631d2a">
+          Bonjour {{full_name}},
+        </mj-text>
+        <mj-text>
+          Nous avons le plaisir de vous informer que <strong>{{organization}}</strong> a été
+          sélectionnée pour participer au programme <strong>Early Access de Clever Cloud
+          Morocco</strong>.
+        </mj-text>
+        <mj-text>
+          Dans le cadre du lancement de notre plateforme cloud souveraine au Maroc, nous avons
+          retenu un nombre limité d&rsquo;organisations pour tester et adopter nos services en
+          avant-première.
+          {{#if job_title}}En tant que <strong>{{job_title}}</strong>, votre{{else}}Votre{{/if}}
+          profil correspond pleinement aux critères de ce programme, et nous sommes ravis de
+          vous compter parmi nos premiers partenaires.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#efccd3" border-radius="8px" padding="20px 24px">
+        <mj-text font-weight="600" color="#631d2a" padding-bottom="6px">
+          En tant que membre Early Access, vous bénéficierez de :
+        </mj-text>
+        <mj-text padding="4px 0">
+          &bull;&nbsp; Un <strong>accès prioritaire</strong> à la plateforme Clever Cloud Morocco
+        </mj-text>
+        <mj-text padding="4px 0">
+          &bull;&nbsp; Un <strong>accompagnement personnalisé</strong> par notre équipe technique
+        </mj-text>
+        <mj-text padding="4px 0">
+          &bull;&nbsp; La possibilité de <strong>contribuer activement</strong> à l&rsquo;évolution
+          de la plateforme via vos retours
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding="20px 32px 8px 32px">
+      <mj-column>
+        <mj-text>
+          Afin de procéder à l&rsquo;activation de votre accès, nous vous remercions de bien
+          vouloir nous communiquer <strong>l&rsquo;identifiant (ID) de votre organisation Clever
+          Cloud</strong>, afin que nous puissions vous attribuer les droits nécessaires.
+        </mj-text>
+        <mj-button background-color="#631d2a" color="#ffffff" border-radius="6px" font-weight="600"
+                   href="mailto:{{reply_to}}?subject=Clever%20Cloud%20Org%20ID%20-%20{{organization}}"
+                   padding="20px 0 6px 0">
+          Communiquer notre ID Clever Cloud
+        </mj-button>
+        <mj-text font-size="13px" color="#999999" align="center" padding-top="4px">
+          ou répondez simplement à cet email
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding="12px 32px 36px 32px">
+      <mj-column>
+        <mj-text>
+          Pour toute question, notre équipe reste disponible et à votre écoute.
+        </mj-text>
+        <mj-text padding-top="6px">
+          Dans l&rsquo;attente de votre retour, nous vous adressons nos cordiales salutations.
+        </mj-text>
+        <mj-text padding-top="18px" color="#631d2a">
+          <strong>L&rsquo;équipe AGEL &times; Clever Cloud Morocco</strong>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#efccd3" padding="18px 24px">
+      <mj-column>
+        <mj-text font-size="11px" color="#824a55" align="center">
+          AGEL GROUP &middot; Casablanca, Maroc &middot; Programme Early Access Clever Cloud Morocco
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>
