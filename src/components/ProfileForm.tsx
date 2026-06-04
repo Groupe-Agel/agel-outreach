@@ -440,16 +440,6 @@ export function ProfileForm({ user }: { user: ProfileData }) {
             warn={!user.hasPassword}
           />
           <SecurityRow
-            icon="sparkle"
-            title="Two-factor authentication"
-            detail="Add an extra layer to your sign-in."
-            action={
-              <button type="button" className="btn btn-secondary btn-sm">
-                <Icon name="plus" size={12} /> Enable 2FA
-              </button>
-            }
-          />
-          <SecurityRow
             icon="settings"
             title="Active sessions"
             detail="Browser sessions tied to this account."
