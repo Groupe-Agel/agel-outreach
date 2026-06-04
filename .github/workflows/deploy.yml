@@ -21,10 +21,13 @@ jobs:
       APP_URL: ${{ secrets.PROD_APP_URL }}
     steps:
       - name: Refuse unconfirmed runs
-        if: ${{ inputs.confirm != 'DEPLOY' }}
+        env:
+          CONFIRM_INPUT: ${{ inputs.confirm }}
         run: |
-          echo "::error::confirm input must be exactly 'DEPLOY' (got '${{ inputs.confirm }}')"
-          exit 1
+          if [ "$CONFIRM_INPUT" != "DEPLOY" ]; then
+            echo "::error::confirm input must be exactly 'DEPLOY'"
+            exit 1
+          fi
 
       - uses: actions/checkout@v4
 
