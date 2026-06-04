@@ -135,14 +135,14 @@ body {
     cursor: pointer;
     font-family: inherit;
   }
-  .btn-primary {
+  .btn.btn-primary {
     background: var(--color-maroon-700);
     color: #ffffff;
     box-shadow: 0 1px 2px rgba(74, 22, 32, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
-  .btn-primary:hover { background: var(--color-maroon-800); }
-  .btn-primary:active { background: var(--color-maroon-900); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.btn-primary:hover { background: var(--color-maroon-800); }
+  .btn.btn-primary:active { background: var(--color-maroon-900); }
+  .btn.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .btn-secondary {
     background: #ffffff;
