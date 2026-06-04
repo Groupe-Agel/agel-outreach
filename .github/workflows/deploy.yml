@@ -22,4 +22,4 @@ jobs:
           ssh-keyscan -H push-n3-par-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
 
       - name: Deploy to agel-outreach
-        run: git push git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_961cfc69-7a31-4421-a6e5-0cde2ad1334c.git HEAD:master --force
+        run: git push git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_c21e4fc4-9cc7-46f4-86bf-ff0c6bca7425.git HEAD:master --force
