@@ -19,7 +19,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.CLEVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H push-n1-rba-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H push-n3-par-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
 
       - name: Deploy to agel-outreach
-        run: git push git+ssh://git@push-n1-rba-clevercloud-customers.services.clever-cloud.com/app_961cfc69-7a31-4421-a6e5-0cde2ad1334c.git HEAD:master --force
+        run: git push git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_961cfc69-7a31-4421-a6e5-0cde2ad1334c.git HEAD:master --force
