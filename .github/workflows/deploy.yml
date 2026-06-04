@@ -1,112 +1,24 @@
-name: Deploy
+name: Deploy to Clever Cloud
 
 on:
-  workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type DEPLOY to confirm a production deploy'
-        required: true
-        type: string
-
-concurrency:
-  group: deploy-prod
-  cancel-in-progress: false
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
-    name: Deploy to production
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      APP_URL: ${{ secrets.PROD_APP_URL }}
     steps:
-      - name: Refuse unconfirmed runs
-        env:
-          CONFIRM_INPUT: ${{ inputs.confirm }}
-        run: |
-          if [ "$CONFIRM_INPUT" != "DEPLOY" ]; then
-            echo "::error::confirm input must be exactly 'DEPLOY'"
-            exit 1
-          fi
-
       - uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          fetch-depth: 0
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Re-gate (typecheck, test, build)
+      - name: Setup SSH
         run: |
-          bun run typecheck
-          bun run test
-          bun run build
-        env:
-          DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci"
-          AUTH_SECRET: "deploy-placeholder-not-used-at-build-time"
-          AUTH_TRUST_HOST: "true"
-          NEXTAUTH_URL: ${{ secrets.PROD_APP_URL }}
-          APP_URL: ${{ secrets.PROD_APP_URL }}
-          MAIL_TRANSPORT: "resend"
-          DEV_SKIP_AUTH: "false"
-          AUTH_ALLOWED_DOMAINS: "groupe-agel.com,agelpartners.com"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.CLEVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H push-n3-par-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
 
-      - name: Apply DB migrations against prod
-        run: bun run scripts/migrate.ts
-        env:
-          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
-
-      - name: Install Clever Cloud CLI
-        run: |
-          curl -fsSL https://clever-tools.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz \
-            | tar -xz --strip-components=1 -C /usr/local/bin clever-tools-latest_linux/clever
-          clever version
-
-      - name: Authenticate Clever CLI
-        run: clever login --token "$CLEVER_TOKEN" --secret "$CLEVER_SECRET"
-        env:
-          CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
-          CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
-
-      - name: Tag the deploy with the commit sha
-        run: clever env set GIT_SHA "${{ github.sha }}" --alias agel-outreach
-
-      - name: Deploy
-        run: clever deploy --alias agel-outreach --force
-
-      - name: Smoke test — /api/health
-        run: |
-          for i in 1 2 3 4 5; do
-            if curl -fsS "$APP_URL/api/health" | tee /tmp/health.json | grep -q '"ok":true'; then
-              echo "health OK"
-              exit 0
-            fi
-            echo "attempt $i failed, retrying in 6s"
-            sleep 6
-          done
-          echo "::error::/api/health never returned ok:true after 5 attempts"
-          cat /tmp/health.json || true
-          exit 1
-
-      - name: Smoke test — /login renders
-        run: |
-          body=$(curl -fsS "$APP_URL/login")
-          if ! echo "$body" | grep -q "Sign in"; then
-            echo "::error::/login response did not contain 'Sign in'"
-            exit 1
-          fi
-          echo "login OK"
-
-      - name: Job summary
-        if: always()
-        run: |
-          {
-            echo "## Deploy summary"
-            echo ""
-            echo "- **Commit:** \`${{ github.sha }}\`"
-            echo "- **App URL:** $APP_URL"
-            echo "- **Status:** ${{ job.status }}"
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Deploy to agel-outreach
+        run: git push git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_6df310f8-774a-453c-ac0f-5b1c0c5de5de.git HEAD:main --force
