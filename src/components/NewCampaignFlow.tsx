@@ -13,6 +13,12 @@ type TemplateOpt = {
   variables: string[];
 };
 
+type ListOpt = {
+  id: string;
+  name: string;
+  memberCount: number;
+};
+
 const STEPS = [
   { id: "template", label: "Template", hint: "Pick the email to send" },
   { id: "contacts", label: "Contacts", hint: "Upload your recipient list" },
@@ -22,11 +28,13 @@ const STEPS = [
 
 export function NewCampaignFlow({
   templates,
+  lists = [],
   defaultFromName,
   defaultReplyTo,
   defaultFromAddress,
 }: {
   templates: TemplateOpt[];
+  lists?: ListOpt[];
   defaultFromName: string;
   defaultReplyTo: string;
   defaultFromAddress: string;
@@ -69,6 +77,22 @@ export function NewCampaignFlow({
     }
     setParsed(data);
     if (data.rows.length > 0) setStep(2);
+  }
+
+  async function chooseList(listId: string) {
+    const res = await fetch(`/api/lists/${listId}`);
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error ?? "Could not load list");
+      return;
+    }
+    const rows = (data.members as { email: string; mergeData: Record<string, unknown> }[])
+      .map((m) => ({ email: m.email, ...m.mergeData })) as Contact[];
+    const columns = Array.from(
+      new Set(rows.flatMap((r) => Object.keys(r))),
+    );
+    setParsed({ rows, columns, errors: [] });
+    if (rows.length > 0) setStep(2);
   }
 
   // Refresh preview when activeRow or templateId changes
@@ -163,6 +187,8 @@ export function NewCampaignFlow({
             templateVars={template?.variables ?? []}
             parsed={parsed}
             uploadFile={uploadFile}
+            lists={lists}
+            chooseList={chooseList}
             onBack={() => setStep(0)}
           />
         )}
@@ -623,11 +649,15 @@ function StepContacts({
   templateVars,
   parsed,
   uploadFile,
+  lists,
+  chooseList,
   onBack,
 }: {
   templateVars: string[];
   parsed: ParseResult | null;
   uploadFile: (f: File) => void;
+  lists: ListOpt[];
+  chooseList: (id: string) => void;
   onBack: () => void;
 }) {
   const [dragOver, setDragOver] = useState(false);
@@ -647,6 +677,63 @@ function StepContacts({
         <span className="mono">.csv</span>, <span className="mono">.xlsx</span>. Each row becomes one email.
         Required columns: <span className="mono">email</span>, plus whatever variables your template uses.
       </p>
+
+      {lists.length > 0 && (
+        <div
+          style={{
+            marginBottom: 20,
+            padding: 16,
+            border: "1px solid var(--color-ink-100)",
+            borderRadius: 10,
+            background: "var(--color-ink-25)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  color: "var(--color-ink-800)",
+                }}
+              >
+                Reuse a saved list
+              </div>
+              <div
+                style={{
+                  fontSize: 12.5,
+                  color: "var(--color-ink-600)",
+                  marginTop: 2,
+                }}
+              >
+                Pick an audience you previously saved instead of uploading a file again.
+              </div>
+            </div>
+            <select
+              className="input"
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) chooseList(e.target.value);
+              }}
+              style={{ maxWidth: 280, fontSize: 13 }}
+            >
+              <option value="">Choose a list…</option>
+              {lists.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name} ({l.memberCount})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
 
       <label
         onDragOver={(e) => {

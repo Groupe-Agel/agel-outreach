@@ -40,6 +40,7 @@ export function SideNav({
       items: [
         { href: "/campaigns", icon: "paperPlane", label: "Campaigns", badge: campaignCount },
         { href: "/templates", icon: "folder", label: "Templates", badge: templateCount },
+        { href: "/lists", icon: "users", label: "Lists" },
       ],
     },
     {

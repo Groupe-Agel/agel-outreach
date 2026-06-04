@@ -29,6 +29,13 @@
       "when": 1780591557306,
       "tag": "0003_bumpy_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1780594353253,
+      "tag": "0004_last_namorita",
+      "breakpoints": true
     }
   ]
 }

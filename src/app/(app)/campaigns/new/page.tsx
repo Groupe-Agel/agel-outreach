@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { templates } from "@/lib/db/schema";
+import { contactLists, contactListMembers, templates } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -20,6 +20,21 @@ export default async function NewCampaignPage() {
     .from(templates)
     .orderBy(desc(templates.updatedAt));
 
+  const lists = await db
+    .select({
+      id: contactLists.id,
+      name: contactLists.name,
+      memberCount: sql<number>`count(${contactListMembers.id})::int`,
+    })
+    .from(contactLists)
+    .leftJoin(
+      contactListMembers,
+      eq(contactLists.id, contactListMembers.listId),
+    )
+    .where(eq(contactLists.createdById, user.id))
+    .groupBy(contactLists.id)
+    .orderBy(desc(contactLists.updatedAt));
+
   return (
     <div>
       <PageHeader
@@ -36,6 +51,7 @@ export default async function NewCampaignPage() {
       />
       <NewCampaignFlow
         templates={rows}
+        lists={lists}
         defaultFromName={user.name ?? user.email.split("@")[0]}
         defaultReplyTo={user.email}
         defaultFromAddress={env.RESEND_DEFAULT_FROM_EMAIL}

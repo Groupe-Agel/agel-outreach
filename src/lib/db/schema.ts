@@ -121,6 +121,38 @@ export const templates = pgTable(
   (t) => [index("template_created_by_idx").on(t.createdById)],
 );
 
+export const contactLists = pgTable(
+  "contact_list",
+  {
+    id: id(),
+    name: text("name").notNull(),
+    description: text("description"),
+    createdById: text("created_by_id")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("contact_list_created_by_idx").on(t.createdById)],
+);
+
+export const contactListMembers = pgTable(
+  "contact_list_member",
+  {
+    id: id(),
+    listId: text("list_id")
+      .notNull()
+      .references(() => contactLists.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    mergeData: jsonb("merge_data").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("contact_list_member_list_idx").on(t.listId),
+    index("contact_list_member_unique").on(t.listId, t.email),
+  ],
+);
+
 export const campaigns = pgTable(
   "campaign",
   {
@@ -199,7 +231,26 @@ export const usersRelations = relations(users, ({ many }) => ({
   templates: many(templates),
   campaigns: many(campaigns),
   apiTokens: many(apiTokens),
+  contactLists: many(contactLists),
 }));
+
+export const contactListsRelations = relations(contactLists, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [contactLists.createdById],
+    references: [users.id],
+  }),
+  members: many(contactListMembers),
+}));
+
+export const contactListMembersRelations = relations(
+  contactListMembers,
+  ({ one }) => ({
+    list: one(contactLists, {
+      fields: [contactListMembers.listId],
+      references: [contactLists.id],
+    }),
+  }),
+);
 
 export const templatesRelations = relations(templates, ({ one, many }) => ({
   createdBy: one(users, {
