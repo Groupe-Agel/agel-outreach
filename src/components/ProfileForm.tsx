@@ -25,13 +25,7 @@ export type ProfileData = {
   hasSmtpPassword: boolean;
 };
 
-export function ProfileForm({
-  user,
-  onSignOut,
-}: {
-  user: ProfileData;
-  onSignOut: () => Promise<void>;
-}) {
+export function ProfileForm({ user }: { user: ProfileData }) {
   const router = useRouter();
   const [name, setName] = useState(user.name ?? "");
   const [fromName, setFromName] = useState(user.defaultFromName ?? user.name ?? "");
@@ -85,13 +79,6 @@ export function ProfileForm({
     }
   }
 
-  const [notifs, setNotifs] = useState({
-    campaignComplete: true,
-    sendFailed: true,
-    weeklySummary: false,
-    productUpdates: true,
-  });
-
   function save() {
     start(async () => {
       const res = await fetch("/api/profile", {
@@ -135,8 +122,6 @@ export function ProfileForm({
             { id: "sender", label: "Sender identity" },
             { id: "smtp", label: "Mail server" },
             { id: "security", label: "Security" },
-            { id: "notifications", label: "Notifications" },
-            { id: "danger", label: "Danger zone" },
           ].map((it, i) => (
             <a
               key={it.id}
@@ -472,62 +457,6 @@ export function ProfileForm({
           />
         </Section>
 
-        <Section
-          title="Notifications"
-          subtitle="When AGEL Outreach should reach you."
-          id="notifications"
-        >
-          <NotifRow
-            title="Campaign complete"
-            detail="Email when one of your campaigns finishes sending."
-            value={notifs.campaignComplete}
-            onChange={(v) => setNotifs({ ...notifs, campaignComplete: v })}
-          />
-          <NotifRow
-            title="Send failed"
-            detail="Email when any recipient fails (bounce, hard fail, retry exhausted)."
-            value={notifs.sendFailed}
-            onChange={(v) => setNotifs({ ...notifs, sendFailed: v })}
-            urgent
-          />
-          <NotifRow
-            title="Weekly summary"
-            detail="Every Monday: open rates, top performers, and template usage."
-            value={notifs.weeklySummary}
-            onChange={(v) => setNotifs({ ...notifs, weeklySummary: v })}
-          />
-          <NotifRow
-            title="Product updates"
-            detail="New features, breaking changes, scheduled maintenance."
-            value={notifs.productUpdates}
-            onChange={(v) => setNotifs({ ...notifs, productUpdates: v })}
-          />
-        </Section>
-
-        <Section title="Danger zone" tone="danger" id="danger">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 20,
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-ink-800)" }}>
-                Sign out of all devices
-              </div>
-              <div style={{ fontSize: 12.5, color: "var(--color-ink-600)", marginTop: 2 }}>
-                Revoke every session — including this one. You&apos;ll need to sign in again.
-              </div>
-            </div>
-            <form action={onSignOut}>
-              <button type="submit" className="btn btn-danger">
-                <Icon name="logout" size={14} /> Sign out everywhere
-              </button>
-            </form>
-          </div>
-        </Section>
       </div>
     </div>
   );
@@ -658,51 +587,3 @@ function SecurityRow({
   );
 }
 
-function NotifRow({
-  title,
-  detail,
-  value,
-  onChange,
-  urgent,
-}: {
-  title: string;
-  detail: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-  urgent?: boolean;
-}) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 14,
-        padding: "14px 0",
-        borderTop: "1px solid var(--color-ink-50)",
-      }}
-    >
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-ink-800)" }}>
-            {title}
-          </span>
-          {urgent && (
-            <span
-              className="badge"
-              style={{
-                background: "var(--color-danger-50)",
-                color: "var(--color-danger-700)",
-              }}
-            >
-              Urgent
-            </span>
-          )}
-        </div>
-        <div style={{ fontSize: 12.5, color: "var(--color-ink-600)", marginTop: 1 }}>
-          {detail}
-        </div>
-      </div>
-      <Toggle value={value} onChange={onChange} ariaLabel={title} />
-    </div>
-  );
-}

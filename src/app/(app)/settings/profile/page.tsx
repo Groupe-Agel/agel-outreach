@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { signOut } from "@/auth";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth-helpers";
@@ -28,11 +27,6 @@ export default async function ProfilePage() {
     hasSmtpPassword: Boolean(row?.smtpPassEncrypted),
   };
 
-  async function handleSignOut() {
-    "use server";
-    await signOut({ redirectTo: "/login" });
-  }
-
   return (
     <div>
       <PageHeader
@@ -40,7 +34,7 @@ export default async function ProfilePage() {
         title="Profile"
         subtitle="Your account, sender identity, and how AGEL Outreach reaches you."
       />
-      <ProfileForm user={data} onSignOut={handleSignOut} />
+      <ProfileForm user={data} />
     </div>
   );
 }
