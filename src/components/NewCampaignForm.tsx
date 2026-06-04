@@ -2,8 +2,70 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { unparse as csvUnparse } from "papaparse";
+import * as XLSX from "xlsx";
 import type { Contact, ParseResult } from "@/types/contact";
 import { AUTO_VAR_NAMES } from "@/lib/templates/auto-vars";
+
+const SAMPLE_CONTACTS = [
+  {
+    email: "alice.dupont@example.com",
+    first_name: "Alice",
+    last_name: "Dupont",
+    organization: "Acme Corp",
+    job_title: "Head of Marketing",
+  },
+  {
+    email: "yacine.benali@example.com",
+    first_name: "Yacine",
+    last_name: "Benali",
+    organization: "Sahara Holdings",
+    job_title: "Operations Director",
+  },
+  {
+    email: "marie.laurent@example.com",
+    first_name: "Marie",
+    last_name: "Laurent",
+    organization: "Atlas Tech",
+    job_title: "CTO",
+  },
+];
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadSample(format: "json" | "csv" | "xlsx") {
+  if (format === "json") {
+    const blob = new Blob([JSON.stringify(SAMPLE_CONTACTS, null, 2)], {
+      type: "application/json",
+    });
+    downloadBlob(blob, "agel-contacts-sample.json");
+    return;
+  }
+  if (format === "csv") {
+    const csv = csvUnparse(SAMPLE_CONTACTS);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    downloadBlob(blob, "agel-contacts-sample.csv");
+    return;
+  }
+  // xlsx
+  const ws = XLSX.utils.json_to_sheet(SAMPLE_CONTACTS);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "contacts");
+  const buf = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+  const blob = new Blob([buf], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  downloadBlob(blob, "agel-contacts-sample.xlsx");
+}
 
 type TemplateOpt = {
   id: string;
@@ -222,6 +284,40 @@ export function NewCampaignForm({
             }}
             className="block w-full text-sm"
           />
+          <div
+            style={{
+              marginTop: 8,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 12.5,
+              color: "var(--color-ink-600)",
+              flexWrap: "wrap",
+            }}
+          >
+            <span>Need a starter file?</span>
+            <button
+              type="button"
+              onClick={() => downloadSample("json")}
+              className="btn btn-ghost btn-sm"
+            >
+              .json
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadSample("csv")}
+              className="btn btn-ghost btn-sm"
+            >
+              .csv
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadSample("xlsx")}
+              className="btn btn-ghost btn-sm"
+            >
+              .xlsx
+            </button>
+          </div>
         </Field>
 
         {parsed && (
