@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: agel-outreach-clever-deploy
     steps:
       - uses: actions/checkout@v4
         with:
