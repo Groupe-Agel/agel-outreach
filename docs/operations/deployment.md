@@ -1,7 +1,7 @@
 # Deployment
 
 > **Audience:** operations
-> **Last reviewed:** 2026-05-18
+> **Last reviewed:** 2026-06-04
 > **Status:** current
 
 ## Summary
@@ -105,6 +105,45 @@ clever deploy
 
 The Bun runtime is detected from `bun.lock`. The app listens on
 `process.env.PORT` (default 3000) as Next.js does out of the box.
+
+### 6. How the CI/CD pipeline works
+
+Two GitHub Actions workflows:
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `ci.yml` | every PR to `main`, every push to `main` | typecheck → lint → vitest → `next build` |
+| `deploy.yml` | manual click in Actions tab (input `confirm=DEPLOY`) | re-gate → migrator → `clever deploy` → smoke test |
+
+Deploys never happen automatically. Merging to `main` does not deploy.
+Production reaches the live URL only when a human opens the Actions tab,
+picks "Deploy" → "Run workflow", types `DEPLOY`, and clicks the green
+button.
+
+The deploy step ordering is intentional:
+
+```
+re-gate → migrate prod DB → clever deploy → smoke test
+              │                                  │
+              └─ failed migration aborts here    └─ failed smoke test goes
+                 (old code + old schema stay)       red but new release IS
+                                                    already live; rollback
+                                                    is manual (see runbook)
+```
+
+### 7. GitHub Actions secrets
+
+Set under repo Settings → Secrets and variables → Actions:
+
+| Secret | Value |
+|---|---|
+| `CLEVER_TOKEN` | from `~/.config/clever-cloud/clever-tools.json` after `clever login` locally |
+| `CLEVER_SECRET` | same file as above |
+| `PROD_DATABASE_URL` | `clever env --alias agel-outreach \| grep POSTGRESQL_ADDON_URI` (the addon URI) |
+| `PROD_APP_URL` | the live URL, e.g. `https://outreach.agelpartners.com` |
+
+Rotate `CLEVER_TOKEN` / `CLEVER_SECRET` whenever someone with deploy
+access leaves the team.
 
 ## Screenshots or flows
 

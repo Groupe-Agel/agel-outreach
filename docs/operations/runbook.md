@@ -1,7 +1,7 @@
 # Runbook
 
 > **Audience:** operations
-> **Last reviewed:** 2026-05-18
+> **Last reviewed:** 2026-06-04
 > **Status:** draft
 
 ## Summary
@@ -56,6 +56,52 @@ heading on repeat ones.
 2. Confirm `DATABASE_URL` in the deployed env still matches the addon.
 3. Try `bun run db:studio` from a developer machine against the prod
    `DATABASE_URL` to isolate driver vs. network.
+
+## Rolling back a deploy
+
+The Actions "Deploy" run failed, or the new release is live but broken.
+Rollback is a documented manual procedure — the pipeline never rolls
+back on its own.
+
+### 1. Find the previous good deploy
+
+```bash
+clever activity --alias agel-outreach
+```
+
+Look for the most recent line with status `OK` before the current bad
+release. Copy its commit sha.
+
+### 2. Re-deploy that commit
+
+```bash
+clever deploy --alias agel-outreach --commit <previous-sha> --force
+```
+
+Wait for Clever to confirm the swap (`clever logs --alias agel-outreach`
+shows the new process binding).
+
+### 3. Verify
+
+```bash
+curl -fsS https://<prod-url>/api/health | jq .
+```
+
+The `sha` field should match `<previous-sha>` (truncated). The `db`
+field should be `"up"`.
+
+### 4. Database rollback
+
+The pipeline only applies **additive** migrations (new tables, new
+nullable columns, new indexes), so reverting code against a forward-
+migrated schema is safe in practice. If a destructive migration is
+ever required, it follows a separate two-phase plan and is not run
+through this pipeline.
+
+### 5. Postmortem
+
+File a `docs/history/decisions/` entry within 24h: what broke, why
+smoke test or CI didn't catch it, what gate to add.
 
 ## Screenshots or flows
 
