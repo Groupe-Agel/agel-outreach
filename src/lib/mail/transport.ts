@@ -22,11 +22,32 @@ export interface Transport {
   readonly name: string;
 }
 
+export type SmtpConfig = {
+  host: string;
+  port: number;
+  secure: boolean;
+  user?: string;
+  pass?: string;
+};
+
 class SmtpTransport implements Transport {
   readonly name: string;
   private mailer: Transporter;
 
-  constructor() {
+  constructor(config?: SmtpConfig) {
+    if (config) {
+      this.name = "smtp";
+      this.mailer = nodemailer.createTransport({
+        host: config.host,
+        port: config.port,
+        secure: config.secure,
+        auth:
+          config.user && config.pass
+            ? { user: config.user, pass: config.pass }
+            : undefined,
+      });
+      return;
+    }
     this.name = env.MAIL_TRANSPORT === "mailpit" ? "mailpit" : "smtp";
     this.mailer = nodemailer.createTransport({
       host: env.SMTP_HOST,
@@ -37,6 +58,10 @@ class SmtpTransport implements Transport {
           ? { user: env.SMTP_USER, pass: env.SMTP_PASS }
           : undefined,
     });
+  }
+
+  async verify(): Promise<void> {
+    await this.mailer.verify();
   }
 
   async send(msg: MailMessage): Promise<SendResult> {
@@ -140,4 +165,14 @@ export function getTransport(): Transport {
 // For tests + hot-reload scenarios.
 export function resetTransport() {
   _transport = null;
+}
+
+/**
+ * Builds a one-off SMTP transport from explicit credentials. Used to send a
+ * campaign through the credentials of the user who created it, instead of the
+ * env-wide default. Caller is responsible for keeping its own reference; this
+ * does NOT touch the module-level singleton.
+ */
+export function createUserSmtpTransport(config: SmtpConfig): SmtpTransport {
+  return new SmtpTransport(config);
 }

@@ -20,6 +20,12 @@ export default async function ProfilePage() {
     signature: row?.signature ?? null,
     defaultFromName: row?.defaultFromName ?? null,
     defaultReplyTo: row?.defaultReplyTo ?? null,
+    smtpHost: row?.smtpHost ?? null,
+    smtpPort: row?.smtpPort ?? null,
+    smtpSecure: row?.smtpSecure ?? null,
+    smtpUser: row?.smtpUser ?? null,
+    smtpFromEmail: row?.smtpFromEmail ?? null,
+    hasSmtpPassword: Boolean(row?.smtpPassEncrypted),
   };
 
   async function handleSignOut() {

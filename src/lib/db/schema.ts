@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   integer,
+  boolean,
   primaryKey,
   pgEnum,
   jsonb,
@@ -31,6 +32,14 @@ export const users = pgTable("user", {
   signature: text("signature"),
   defaultFromName: text("default_from_name"),
   defaultReplyTo: text("default_reply_to"),
+  // Per-user SMTP configuration. When set, outgoing mail for this user's
+  // campaigns is sent through their own SMTP rather than the env-level default.
+  smtpHost: text("smtp_host"),
+  smtpPort: integer("smtp_port"),
+  smtpSecure: boolean("smtp_secure"),
+  smtpUser: text("smtp_user"),
+  smtpPassEncrypted: text("smtp_pass_encrypted"),
+  smtpFromEmail: text("smtp_from_email"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
 

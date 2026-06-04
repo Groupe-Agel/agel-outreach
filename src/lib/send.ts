@@ -7,7 +7,13 @@ import {
   renderText,
 } from "@/lib/templates/compile";
 import { withAutoVars } from "@/lib/templates/auto-vars";
-import { getTransport, type MailMessage } from "@/lib/mail/transport";
+import {
+  createUserSmtpTransport,
+  getTransport,
+  type MailMessage,
+  type Transport,
+} from "@/lib/mail/transport";
+import { decryptSecret } from "@/lib/secret-crypto";
 import { env } from "@/lib/env";
 
 export type DispatchResult = {
@@ -17,8 +23,41 @@ export type DispatchResult = {
 
 const BATCH_SIZE = 100;
 
-function buildFrom(fromName: string): string {
-  return `${fromName} <${env.RESEND_DEFAULT_FROM_EMAIL}>`;
+type UserSmtp = Pick<
+  typeof schema.users.$inferSelect,
+  | "smtpHost"
+  | "smtpPort"
+  | "smtpSecure"
+  | "smtpUser"
+  | "smtpPassEncrypted"
+  | "smtpFromEmail"
+  | "email"
+>;
+
+function userSmtpReady(u: UserSmtp): boolean {
+  return Boolean(u.smtpHost && u.smtpPort && u.smtpUser && u.smtpPassEncrypted);
+}
+
+function userFromAddress(u: UserSmtp): string {
+  return u.smtpFromEmail || u.smtpUser || u.email;
+}
+
+function buildFromForUser(fromName: string, u: UserSmtp | null): string {
+  const addr = u && userSmtpReady(u) ? userFromAddress(u) : env.RESEND_DEFAULT_FROM_EMAIL;
+  return `${fromName} <${addr}>`;
+}
+
+function buildTransportForUser(u: UserSmtp | null): Transport {
+  if (u && userSmtpReady(u)) {
+    return createUserSmtpTransport({
+      host: u.smtpHost!,
+      port: u.smtpPort!,
+      secure: Boolean(u.smtpSecure),
+      user: u.smtpUser!,
+      pass: decryptSecret(u.smtpPassEncrypted!),
+    });
+  }
+  return getTransport();
 }
 
 export async function sendCampaign(campaignId: string): Promise<DispatchResult> {
@@ -61,7 +100,12 @@ export async function sendCampaign(campaignId: string): Promise<DispatchResult> 
     ),
   });
 
-  const transport = getTransport();
+  const owner = await db.query.users.findFirst({
+    where: eq(schema.users.id, c.createdById),
+  });
+  const transport = buildTransportForUser(owner ?? null);
+  const fromAddress = buildFromForUser(c.fromName, owner ?? null);
+
   let sent = 0;
   let failed = 0;
 
@@ -73,7 +117,7 @@ export async function sendCampaign(campaignId: string): Promise<DispatchResult> 
         { reply_to: c.replyTo, from_name: c.fromName },
       );
       return {
-        from: buildFrom(c.fromName),
+        from: fromAddress,
         to: r.email,
         replyTo: c.replyTo,
         subject: renderText(c.subjectTpl, data),
@@ -170,6 +214,7 @@ export async function testSendToSelf(opts: {
   replyTo: string;
   sampleData: Record<string, unknown>;
   toEmail: string;
+  userId?: string;
 }): Promise<{ id: string | null }> {
   const template = await db.query.templates.findFirst({
     where: eq(schema.templates.id, opts.templateId),
@@ -187,9 +232,12 @@ export async function testSendToSelf(opts: {
     reply_to: opts.replyTo,
     from_name: opts.fromName,
   });
-  const transport = getTransport();
+  const owner = opts.userId
+    ? await db.query.users.findFirst({ where: eq(schema.users.id, opts.userId) })
+    : null;
+  const transport = buildTransportForUser(owner ?? null);
   const result = await transport.send({
-    from: buildFrom(opts.fromName),
+    from: buildFromForUser(opts.fromName, owner ?? null),
     to: opts.toEmail,
     replyTo: opts.replyTo,
     subject: "[TEST] " + renderText(opts.subjectTpl, data),

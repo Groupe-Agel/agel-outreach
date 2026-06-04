@@ -37,6 +37,7 @@ export async function POST(
       replyTo: c.replyTo,
       sampleData: data,
       toEmail: user.email,
+      userId: c.createdById ?? user.id,
     });
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {

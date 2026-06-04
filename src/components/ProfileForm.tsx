@@ -17,6 +17,12 @@ export type ProfileData = {
   signature: string | null;
   defaultFromName: string | null;
   defaultReplyTo: string | null;
+  smtpHost: string | null;
+  smtpPort: number | null;
+  smtpSecure: boolean | null;
+  smtpUser: string | null;
+  smtpFromEmail: string | null;
+  hasSmtpPassword: boolean;
 };
 
 export function ProfileForm({
@@ -36,6 +42,49 @@ export function ProfileForm({
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [pending, start] = useTransition();
 
+  // SMTP state
+  const [smtpHost, setSmtpHost] = useState(user.smtpHost ?? "");
+  const [smtpPort, setSmtpPort] = useState(user.smtpPort?.toString() ?? "465");
+  const [smtpSecure, setSmtpSecure] = useState(user.smtpSecure ?? true);
+  const [smtpUser, setSmtpUser] = useState(user.smtpUser ?? "");
+  const [smtpPassword, setSmtpPassword] = useState("");
+  const [smtpFromEmail, setSmtpFromEmail] = useState(user.smtpFromEmail ?? "");
+  const [smtpTesting, setSmtpTesting] = useState(false);
+  const [smtpTestResult, setSmtpTestResult] = useState<
+    { ok: true } | { ok: false; error: string } | null
+  >(null);
+
+  async function testSmtp() {
+    setSmtpTesting(true);
+    setSmtpTestResult(null);
+    try {
+      const res = await fetch("/api/profile/smtp/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          smtpHost,
+          smtpPort: Number(smtpPort),
+          smtpSecure,
+          smtpUser,
+          smtpPassword: smtpPassword.length > 0 ? smtpPassword : undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        setSmtpTestResult({ ok: true });
+      } else {
+        setSmtpTestResult({ ok: false, error: data.error ?? "Connection failed" });
+      }
+    } catch (err) {
+      setSmtpTestResult({
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      setSmtpTesting(false);
+    }
+  }
+
   const [notifs, setNotifs] = useState({
     campaignComplete: true,
     sendFailed: true,
@@ -53,6 +102,12 @@ export function ProfileForm({
           defaultFromName: fromName,
           defaultReplyTo: replyTo,
           signature,
+          smtpHost: smtpHost || null,
+          smtpPort: smtpPort ? Number(smtpPort) : null,
+          smtpSecure,
+          smtpUser: smtpUser || null,
+          smtpPassword: smtpPassword.length > 0 ? smtpPassword : undefined,
+          smtpFromEmail: smtpFromEmail || null,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -62,6 +117,7 @@ export function ProfileForm({
       }
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 2400);
+      setSmtpPassword(""); // clear field after save
       router.refresh();
     });
   }
@@ -77,6 +133,7 @@ export function ProfileForm({
           {[
             { id: "account", label: "Account" },
             { id: "sender", label: "Sender identity" },
+            { id: "smtp", label: "Mail server" },
             { id: "security", label: "Security" },
             { id: "notifications", label: "Notifications" },
             { id: "danger", label: "Danger zone" },
@@ -236,12 +293,147 @@ export function ProfileForm({
                 }}
               >
                 <Icon name="info" size={14} style={{ color: "var(--color-ink-400)" }} />
-                Every send goes through{" "}
-                <span className="mono" style={{ color: "var(--color-ink-800)" }}>
-                  outreach@groupe-agel.com
-                </span>
-                . Your display name shows in the inbox sender column; replies route to the reply-to.
+                {user.smtpHost ? (
+                  <>
+                    Sends use your configured SMTP{" "}
+                    <span className="mono" style={{ color: "var(--color-ink-800)" }}>
+                      ({user.smtpFromEmail || user.smtpUser})
+                    </span>
+                    . Configure or change it in the Mail server section below.
+                  </>
+                ) : (
+                  <>
+                    Configure your SMTP credentials below so campaigns send from your
+                    own mailbox; otherwise the system default sender is used.
+                  </>
+                )}
               </div>
+            </div>
+          </div>
+        </Section>
+
+        <Section
+          title="Mail server"
+          subtitle="SMTP credentials used to send your campaigns. Stored encrypted."
+          id="smtp"
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 16,
+            }}
+          >
+            <Field label="SMTP host">
+              <input
+                className="input mono"
+                placeholder="smtp.hostinger.com"
+                value={smtpHost}
+                onChange={(e) => setSmtpHost(e.target.value)}
+                style={{ fontSize: 13 }}
+              />
+            </Field>
+            <Field label="Port">
+              <input
+                className="input mono"
+                inputMode="numeric"
+                placeholder="465"
+                value={smtpPort}
+                onChange={(e) => setSmtpPort(e.target.value.replace(/[^0-9]/g, ""))}
+                style={{ fontSize: 13 }}
+              />
+            </Field>
+            <Field label="Username">
+              <input
+                className="input mono"
+                placeholder="you@agelpartners.com"
+                value={smtpUser}
+                onChange={(e) => setSmtpUser(e.target.value)}
+                style={{ fontSize: 13 }}
+              />
+            </Field>
+            <Field
+              label="Password"
+              hint={
+                user.hasSmtpPassword && smtpPassword.length === 0
+                  ? "Saved — leave blank to keep current."
+                  : "Stored encrypted with AES-256-GCM."
+              }
+            >
+              <input
+                className="input mono"
+                type="password"
+                placeholder={user.hasSmtpPassword ? "••••••••" : "Mailbox password"}
+                value={smtpPassword}
+                onChange={(e) => setSmtpPassword(e.target.value)}
+                autoComplete="new-password"
+                style={{ fontSize: 13 }}
+              />
+            </Field>
+            <Field
+              label="From address"
+              hint="Address recipients see. Must be owned by the SMTP user."
+            >
+              <input
+                className="input mono"
+                placeholder={smtpUser || "outreach@agelpartners.com"}
+                value={smtpFromEmail}
+                onChange={(e) => setSmtpFromEmail(e.target.value)}
+                style={{ fontSize: 13 }}
+              />
+            </Field>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                padding: "0 2px",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 13, color: "var(--color-ink-800)", fontWeight: 500 }}>
+                  Secure (TLS)
+                </div>
+                <div style={{ fontSize: 12, color: "var(--color-ink-500)", marginTop: 2 }}>
+                  On for port 465; off for 587 (uses STARTTLS).
+                </div>
+              </div>
+              <Toggle value={smtpSecure} onChange={setSmtpSecure} />
+            </div>
+            <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={testSmtp}
+                disabled={smtpTesting || !smtpHost || !smtpUser}
+              >
+                {smtpTesting ? "Testing…" : "Test connection"}
+              </button>
+              {smtpTestResult?.ok === true && (
+                <span
+                  style={{
+                    fontSize: 12.5,
+                    color: "var(--color-success-700)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <Icon name="check" size={12} strokeWidth={2.5} />
+                  Connected — credentials are valid.
+                </span>
+              )}
+              {smtpTestResult?.ok === false && (
+                <span
+                  style={{
+                    fontSize: 12.5,
+                    color: "var(--color-danger-700)",
+                  }}
+                >
+                  {smtpTestResult.error}
+                </span>
+              )}
             </div>
           </div>
         </Section>

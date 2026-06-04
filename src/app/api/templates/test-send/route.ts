@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     const result = await testSendToSelf({
       ...parsed.data,
       toEmail: user.email,
+      userId: user.id,
     });
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
