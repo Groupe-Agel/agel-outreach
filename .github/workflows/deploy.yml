@@ -14,10 +14,13 @@ jobs:
           fetch-depth: 0
 
       - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.CLEVER_SSH_KEY }}
+
+      - name: Trust Clever Cloud host
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.CLEVER_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H push-n3-par-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
 
       - name: Deploy to agel-outreach
