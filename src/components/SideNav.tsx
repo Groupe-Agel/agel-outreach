@@ -46,7 +46,6 @@ export function SideNav({
       title: "Settings",
       items: [
         { href: "/settings/profile", icon: "user", label: "Profile" },
-        { href: "/settings/api-tokens", icon: "key", label: "API tokens" },
         ...(user.role === "SUPERADMIN"
           ? [{ href: "/settings/users", icon: "users" as const, label: "Users" }]
           : []),
@@ -284,13 +283,6 @@ function UserCard({
           >
             <Link href="/settings/profile" className="menu-item" onClick={() => setOpen(false)}>
               <Icon name="user" size={14} /> View profile
-            </Link>
-            <Link
-              href="/settings/api-tokens"
-              className="menu-item"
-              onClick={() => setOpen(false)}
-            >
-              <Icon name="settings" size={14} /> Preferences
             </Link>
             <div style={{ height: 1, background: "var(--color-ink-100)", margin: "4px -2px" }} />
             <button
