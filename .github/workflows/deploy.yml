@@ -21,7 +21,7 @@ jobs:
       - name: Trust Clever Cloud host
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H push-n3-par-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H push-n1-rba-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
 
       - name: Deploy to agel-outreach
-        run: git push git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_6df310f8-774a-453c-ac0f-5b1c0c5de5de.git HEAD:main --force
+        run: git push git+ssh://git@push-n1-rba-clevercloud-customers.services.clever-cloud.com/app_961cfc69-7a31-4421-a6e5-0cde2ad1334c.git HEAD:master --force
