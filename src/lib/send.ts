@@ -56,6 +56,20 @@ async function loadDefaultSmtpConfig(userId: string): Promise<SmtpConfigRow | nu
   );
 }
 
+async function loadSmtpConfigForUser(
+  configId: string,
+  userId: string,
+): Promise<SmtpConfigRow | null> {
+  return (
+    (await db.query.smtpConfigs.findFirst({
+      where: and(
+        eq(schema.smtpConfigs.id, configId),
+        eq(schema.smtpConfigs.userId, userId),
+      ),
+    })) ?? null
+  );
+}
+
 function buildFromForConfig(fromName: string, c: SmtpConfigRow): string {
   return `${fromName} <${c.fromEmail || c.smtpUser}>`;
 }
@@ -101,7 +115,18 @@ async function resolveSendingChannel(
   userId: string,
   legacyUser: UserSmtp | null,
   fromName: string,
+  smtpConfigId?: string | null,
 ): Promise<{ transport: Transport; fromAddress: string }> {
+  if (smtpConfigId) {
+    const explicit = await loadSmtpConfigForUser(smtpConfigId, userId);
+    if (explicit) {
+      return {
+        transport: transportFromConfig(explicit),
+        fromAddress: buildFromForConfig(fromName, explicit),
+      };
+    }
+    // Fall through if the explicit config was deleted between save and send.
+  }
   const cfg = await loadDefaultSmtpConfig(userId);
   if (cfg) {
     return {
@@ -165,6 +190,7 @@ export async function sendCampaign(campaignId: string): Promise<DispatchResult> 
       c.createdById,
       owner ?? null,
       c.fromName,
+      c.smtpConfigId,
     );
     transport = channel.transport;
     fromAddress = channel.fromAddress;

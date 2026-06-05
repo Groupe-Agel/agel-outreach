@@ -43,6 +43,13 @@
       "when": 1780650854270,
       "tag": "0005_strange_wrecking_crew",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1780652127157,
+      "tag": "0006_nappy_manta",
+      "breakpoints": true
     }
   ]
 }

@@ -19,6 +19,15 @@ type ListOpt = {
   memberCount: number;
 };
 
+type SmtpConfigOpt = {
+  id: string;
+  name: string;
+  provider: string;
+  smtpUser: string;
+  fromEmail: string | null;
+  isDefault: boolean;
+};
+
 const STEPS = [
   { id: "template", label: "Template", hint: "Pick the email to send" },
   { id: "contacts", label: "Contacts", hint: "Upload your recipient list" },
@@ -29,12 +38,14 @@ const STEPS = [
 export function NewCampaignFlow({
   templates,
   lists = [],
+  smtpConfigs = [],
   defaultFromName,
   defaultReplyTo,
   defaultFromAddress,
 }: {
   templates: TemplateOpt[];
   lists?: ListOpt[];
+  smtpConfigs?: SmtpConfigOpt[];
   defaultFromName: string;
   defaultReplyTo: string;
   defaultFromAddress: string;
@@ -51,6 +62,15 @@ export function NewCampaignFlow({
   const [previewHtml, setPreviewHtml] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, startSubmit] = useTransition();
+  const [smtpConfigId, setSmtpConfigId] = useState<string>(
+    smtpConfigs.find((c) => c.isDefault)?.id ?? smtpConfigs[0]?.id ?? "",
+  );
+
+  const selectedConfig = smtpConfigs.find((c) => c.id === smtpConfigId) ?? null;
+  const effectiveFromAddress =
+    selectedConfig?.fromEmail ||
+    selectedConfig?.smtpUser ||
+    defaultFromAddress;
 
   const template = templates.find((t) => t.id === templateId);
 
@@ -143,6 +163,7 @@ export function NewCampaignFlow({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           templateId: template.id,
+          smtpConfigId: smtpConfigId || undefined,
           subjectTpl: subject,
           fromName,
           replyTo,
@@ -177,8 +198,11 @@ export function NewCampaignFlow({
             setFromName={setFromName}
             replyTo={replyTo}
             setReplyTo={setReplyTo}
-            fromAddress={defaultFromAddress}
+            fromAddress={effectiveFromAddress}
             template={template}
+            smtpConfigs={smtpConfigs}
+            smtpConfigId={smtpConfigId}
+            setSmtpConfigId={setSmtpConfigId}
             onNext={() => setStep(1)}
           />
         )}
@@ -212,7 +236,7 @@ export function NewCampaignFlow({
             subject={subject}
             fromName={fromName}
             replyTo={replyTo}
-            fromAddress={defaultFromAddress}
+            fromAddress={effectiveFromAddress}
             schedule={schedule}
             setSchedule={setSchedule}
             onBack={() => setStep(2)}
@@ -226,7 +250,7 @@ export function NewCampaignFlow({
           recipients={parsed.rows.length}
           subject={subject}
           fromName={fromName}
-          fromAddress={defaultFromAddress}
+          fromAddress={effectiveFromAddress}
           schedule={schedule}
           pending={submitting}
           onCancel={() => setShowConfirm(false)}
@@ -370,6 +394,9 @@ function StepTemplate({
   setReplyTo,
   fromAddress,
   template,
+  smtpConfigs,
+  smtpConfigId,
+  setSmtpConfigId,
   onNext,
 }: {
   templates: TemplateOpt[];
@@ -383,6 +410,9 @@ function StepTemplate({
   setReplyTo: (s: string) => void;
   fromAddress: string;
   template: TemplateOpt;
+  smtpConfigs: SmtpConfigOpt[];
+  smtpConfigId: string;
+  setSmtpConfigId: (id: string) => void;
   onNext: () => void;
 }) {
   return (
@@ -445,6 +475,30 @@ function StepTemplate({
               />
             </div>
           </div>
+
+          {smtpConfigs.length > 0 && (
+            <div>
+              <label className="label">Mail server</label>
+              <select
+                className="input"
+                value={smtpConfigId}
+                onChange={(e) => setSmtpConfigId(e.target.value)}
+                style={{ fontSize: 13 }}
+              >
+                {smtpConfigs.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.fromEmail || c.smtpUser})
+                    {c.isDefault ? " — default" : ""}
+                  </option>
+                ))}
+              </select>
+              <div className="hint">
+                Which of your saved SMTP configurations to send this campaign through.
+                Default is highlighted; switch per campaign if you want to route through
+                a different mailbox.
+              </div>
+            </div>
+          )}
 
           <div
             style={{

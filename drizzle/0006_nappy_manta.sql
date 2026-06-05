@@ -1,0 +1,2 @@
+ALTER TABLE "campaign" ADD COLUMN "smtp_config_id" text;--> statement-breakpoint
+ALTER TABLE "campaign" ADD CONSTRAINT "campaign_smtp_config_id_smtp_config_id_fk" FOREIGN KEY ("smtp_config_id") REFERENCES "public"."smtp_config"("id") ON DELETE set null ON UPDATE no action;

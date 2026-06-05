@@ -183,6 +183,9 @@ export const campaigns = pgTable(
     templateId: text("template_id")
       .notNull()
       .references(() => templates.id),
+    smtpConfigId: text("smtp_config_id").references(() => smtpConfigs.id, {
+      onDelete: "set null",
+    }),
     subjectTpl: text("subject_tpl").notNull(),
     fromName: text("from_name").notNull(),
     fromEmail: text("from_email").notNull(),

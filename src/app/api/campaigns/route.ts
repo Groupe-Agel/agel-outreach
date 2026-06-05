@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 
 const Body = z.object({
   templateId: z.string().min(1),
+  smtpConfigId: z.string().min(1).optional().nullable(),
   name: z.string().optional(),
   subjectTpl: z.string().min(1),
   fromName: z.string().min(1),
@@ -35,11 +36,27 @@ export async function POST(req: Request) {
   const fromEmail = `${body.fromName} <${env.RESEND_DEFAULT_FROM_EMAIL}>`;
   const scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null;
 
+  let smtpConfigId: string | null = null;
+  if (body.smtpConfigId) {
+    const cfg = await db.query.smtpConfigs.findFirst({
+      where: eq(schema.smtpConfigs.id, body.smtpConfigId),
+      columns: { id: true, userId: true },
+    });
+    if (!cfg || cfg.userId !== user.id) {
+      return NextResponse.json(
+        { error: "Invalid mail server configuration" },
+        { status: 400 },
+      );
+    }
+    smtpConfigId = cfg.id;
+  }
+
   const [campaign] = await db
     .insert(schema.campaigns)
     .values({
       name: body.name ?? template.name,
       templateId: template.id,
+      smtpConfigId,
       subjectTpl: body.subjectTpl,
       fromName: body.fromName,
       fromEmail,
