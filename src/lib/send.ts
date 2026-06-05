@@ -34,20 +34,51 @@ type UserSmtp = Pick<
   | "email"
 >;
 
+type SmtpConfigRow = typeof schema.smtpConfigs.$inferSelect;
+
 function userSmtpReady(u: UserSmtp): boolean {
   return Boolean(u.smtpHost && u.smtpPort && u.smtpUser && u.smtpPassEncrypted);
 }
 
-function userFromAddress(u: UserSmtp): string {
-  return u.smtpFromEmail || u.smtpUser || u.email;
+async function loadDefaultSmtpConfig(userId: string): Promise<SmtpConfigRow | null> {
+  const row = await db.query.smtpConfigs.findFirst({
+    where: and(
+      eq(schema.smtpConfigs.userId, userId),
+      eq(schema.smtpConfigs.isDefault, true),
+    ),
+  });
+  if (row) return row;
+  // No explicit default — fall back to most recently created.
+  return (
+    (await db.query.smtpConfigs.findFirst({
+      where: eq(schema.smtpConfigs.userId, userId),
+    })) ?? null
+  );
 }
 
-function buildFromForUser(fromName: string, u: UserSmtp | null): string {
-  const addr = u && userSmtpReady(u) ? userFromAddress(u) : env.RESEND_DEFAULT_FROM_EMAIL;
+function buildFromForConfig(fromName: string, c: SmtpConfigRow): string {
+  return `${fromName} <${c.fromEmail || c.smtpUser}>`;
+}
+
+function buildFromForLegacyUser(fromName: string, u: UserSmtp | null): string {
+  const addr =
+    u && userSmtpReady(u)
+      ? u.smtpFromEmail || u.smtpUser || u.email
+      : env.RESEND_DEFAULT_FROM_EMAIL;
   return `${fromName} <${addr}>`;
 }
 
-function buildTransportForUser(u: UserSmtp | null): Transport {
+function transportFromConfig(c: SmtpConfigRow): Transport {
+  return createUserSmtpTransport({
+    host: c.host,
+    port: c.port,
+    secure: c.secure,
+    user: c.smtpUser,
+    pass: decryptSecret(c.passEncrypted),
+  });
+}
+
+function transportFromLegacyUser(u: UserSmtp | null): Transport {
   if (u && userSmtpReady(u)) {
     return createUserSmtpTransport({
       host: u.smtpHost!,
@@ -64,6 +95,24 @@ function buildTransportForUser(u: UserSmtp | null): Transport {
   }
   // Dev/test: fall back to env transport so mailpit and friends keep working.
   return getTransport();
+}
+
+async function resolveSendingChannel(
+  userId: string,
+  legacyUser: UserSmtp | null,
+  fromName: string,
+): Promise<{ transport: Transport; fromAddress: string }> {
+  const cfg = await loadDefaultSmtpConfig(userId);
+  if (cfg) {
+    return {
+      transport: transportFromConfig(cfg),
+      fromAddress: buildFromForConfig(fromName, cfg),
+    };
+  }
+  return {
+    transport: transportFromLegacyUser(legacyUser),
+    fromAddress: buildFromForLegacyUser(fromName, legacyUser),
+  };
 }
 
 export async function sendCampaign(campaignId: string): Promise<DispatchResult> {
@@ -110,8 +159,15 @@ export async function sendCampaign(campaignId: string): Promise<DispatchResult> 
     where: eq(schema.users.id, c.createdById),
   });
   let transport: Transport;
+  let fromAddress: string;
   try {
-    transport = buildTransportForUser(owner ?? null);
+    const channel = await resolveSendingChannel(
+      c.createdById,
+      owner ?? null,
+      c.fromName,
+    );
+    transport = channel.transport;
+    fromAddress = channel.fromAddress;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await db
@@ -120,7 +176,6 @@ export async function sendCampaign(campaignId: string): Promise<DispatchResult> 
       .where(eq(schema.campaigns.id, campaignId));
     throw new Error(message);
   }
-  const fromAddress = buildFromForUser(c.fromName, owner ?? null);
 
   let sent = 0;
   let failed = 0;
@@ -251,9 +306,14 @@ export async function testSendToSelf(opts: {
   const owner = opts.userId
     ? await db.query.users.findFirst({ where: eq(schema.users.id, opts.userId) })
     : null;
-  const transport = buildTransportForUser(owner ?? null);
-  const result = await transport.send({
-    from: buildFromForUser(opts.fromName, owner ?? null),
+  const channel = opts.userId
+    ? await resolveSendingChannel(opts.userId, owner ?? null, opts.fromName)
+    : {
+        transport: transportFromLegacyUser(owner ?? null),
+        fromAddress: buildFromForLegacyUser(opts.fromName, owner ?? null),
+      };
+  const result = await channel.transport.send({
+    from: channel.fromAddress,
     to: opts.toEmail,
     replyTo: opts.replyTo,
     subject: "[TEST] " + renderText(opts.subjectTpl, data),

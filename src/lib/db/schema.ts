@@ -121,6 +121,28 @@ export const templates = pgTable(
   (t) => [index("template_created_by_idx").on(t.createdById)],
 );
 
+export const smtpConfigs = pgTable(
+  "smtp_config",
+  {
+    id: id(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    provider: text("provider").notNull().default("custom"),
+    host: text("host").notNull(),
+    port: integer("port").notNull(),
+    secure: boolean("secure").notNull(),
+    smtpUser: text("smtp_user").notNull(),
+    passEncrypted: text("pass_encrypted").notNull(),
+    fromEmail: text("from_email"),
+    isDefault: boolean("is_default").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("smtp_config_user_idx").on(t.userId)],
+);
+
 export const contactLists = pgTable(
   "contact_list",
   {
@@ -232,6 +254,14 @@ export const usersRelations = relations(users, ({ many }) => ({
   campaigns: many(campaigns),
   apiTokens: many(apiTokens),
   contactLists: many(contactLists),
+  smtpConfigs: many(smtpConfigs),
+}));
+
+export const smtpConfigsRelations = relations(smtpConfigs, ({ one }) => ({
+  user: one(users, {
+    fields: [smtpConfigs.userId],
+    references: [users.id],
+  }),
 }));
 
 export const contactListsRelations = relations(contactLists, ({ one, many }) => ({

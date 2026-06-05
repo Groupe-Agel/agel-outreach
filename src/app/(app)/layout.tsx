@@ -2,7 +2,7 @@ import Link from "next/link";
 import { eq, sql } from "drizzle-orm";
 import { signOut } from "@/auth";
 import { db } from "@/lib/db";
-import { campaigns, templates, users } from "@/lib/db/schema";
+import { campaigns, smtpConfigs, templates, users } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { SideNav } from "@/components/SideNav";
@@ -27,13 +27,20 @@ export default async function AppLayout({
   const counts = await getCounts();
   const devMode = env.DEV_SKIP_AUTH;
 
-  const row = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-    columns: { smtpHost: true, smtpUser: true, smtpPassEncrypted: true },
-  });
-  const needsSmtp = !(
-    row?.smtpHost && row?.smtpUser && row?.smtpPassEncrypted
+  const [row, [{ cfgCount }]] = await Promise.all([
+    db.query.users.findFirst({
+      where: eq(users.id, user.id),
+      columns: { smtpHost: true, smtpUser: true, smtpPassEncrypted: true },
+    }),
+    db
+      .select({ cfgCount: sql<number>`count(*)::int` })
+      .from(smtpConfigs)
+      .where(eq(smtpConfigs.userId, user.id)),
+  ]);
+  const hasLegacy = Boolean(
+    row?.smtpHost && row?.smtpUser && row?.smtpPassEncrypted,
   );
+  const needsSmtp = cfgCount === 0 && !hasLegacy;
 
   async function handleSignOut() {
     "use server";

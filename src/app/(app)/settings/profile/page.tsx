@@ -1,13 +1,29 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
+import { smtpConfigs, users } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth-helpers";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { ProfileForm, type ProfileData } from "@/components/ProfileForm";
+import { ProfileForm, type ProfileData, type SmtpConfig } from "@/components/ProfileForm";
 
 export default async function ProfilePage() {
   const me = await requireUser();
   const row = await db.query.users.findFirst({ where: eq(users.id, me.id) });
+
+  const configs = await db
+    .select({
+      id: smtpConfigs.id,
+      name: smtpConfigs.name,
+      provider: smtpConfigs.provider,
+      host: smtpConfigs.host,
+      port: smtpConfigs.port,
+      secure: smtpConfigs.secure,
+      smtpUser: smtpConfigs.smtpUser,
+      fromEmail: smtpConfigs.fromEmail,
+      isDefault: smtpConfigs.isDefault,
+    })
+    .from(smtpConfigs)
+    .where(eq(smtpConfigs.userId, me.id))
+    .orderBy(desc(smtpConfigs.isDefault), desc(smtpConfigs.updatedAt));
 
   const data: ProfileData = {
     id: me.id,
@@ -19,13 +35,19 @@ export default async function ProfilePage() {
     signature: row?.signature ?? null,
     defaultFromName: row?.defaultFromName ?? null,
     defaultReplyTo: row?.defaultReplyTo ?? null,
-    smtpHost: row?.smtpHost ?? null,
-    smtpPort: row?.smtpPort ?? null,
-    smtpSecure: row?.smtpSecure ?? null,
-    smtpUser: row?.smtpUser ?? null,
-    smtpFromEmail: row?.smtpFromEmail ?? null,
-    hasSmtpPassword: Boolean(row?.smtpPassEncrypted),
   };
+
+  const initialConfigs: SmtpConfig[] = configs.map((c) => ({
+    id: c.id,
+    name: c.name,
+    provider: c.provider as SmtpConfig["provider"],
+    host: c.host,
+    port: c.port,
+    secure: c.secure,
+    smtpUser: c.smtpUser,
+    fromEmail: c.fromEmail,
+    isDefault: c.isDefault,
+  }));
 
   return (
     <div>
@@ -34,7 +56,7 @@ export default async function ProfilePage() {
         title="Profile"
         subtitle="Your account, sender identity, and how AGEL Outreach reaches you."
       />
-      <ProfileForm user={data} />
+      <ProfileForm user={data} initialConfigs={initialConfigs} />
     </div>
   );
 }
